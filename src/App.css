@@ -1,0 +1,79 @@
+body {
+  background-color: #fff5f8;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.app-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.greeting {
+  font-size: 2rem;
+  color: #ff69b4;
+  margin-bottom: 20px;
+}
+
+.folder-selector .btn,
+.media-type-buttons .btn,
+.media-item-btn {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selected-folder {
+  font-size: 1rem;
+  color: #ff69b4;
+}
+
+.media-type-title {
+  font-size: 1.5rem;
+  color: #ff69b4;
+  margin-top: 20px;
+}
+
+.media-list {
+  padding: 0;
+  list-style: none;
+}
+
+.media-item {
+  margin: 10px 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: inherit;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 20px;
+}
