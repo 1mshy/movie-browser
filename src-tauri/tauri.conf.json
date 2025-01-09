@@ -17,7 +17,6 @@
         "resizable": true,
         "title": "movie-browser",
         "width": 920,
-        "transparent": true,
         "decorations": true,
         "titleBarStyle": "Overlay",
         "hiddenTitle": true
