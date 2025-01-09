@@ -1,6 +1,8 @@
 import React from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import './App.css'; // Add this CSS file for styling
+import { open } from '@tauri-apps/plugin-shell';
+
 
 async function loadMedia(folderPath) {
   return await invoke('get_media_structure', { path: folderPath });
@@ -8,7 +10,7 @@ async function loadMedia(folderPath) {
 
 async function openMedia(filePath) {
   // Open the media file using the default video player
-  // await open(filePath);
+  await open("file://" + filePath);
 }
 
 const App = () => {
@@ -41,9 +43,15 @@ const App = () => {
   };
 
   return (
-    <div className="app-container">
-      <h1 className="greeting">{greeting}</h1>
-      <div className="folder-selector">
+    <div className="app-container" data-tauri-drag-region>
+      <button
+          style={{ position: 'absolute', top: '-0.6rem', right: '-0.6rem' }}
+          onClick={async () => {
+            await invoke("close_window");
+          }}
+        >o</button>
+      <h1 className="greeting" data-tauri-drag-region>{greeting}</h1>
+      <div className="folder-selector" data-tauri-drag-region>
         <button className="btn select-folder" onClick={selectParentFolder}>🌸 Select Parent Folder 🌸</button>
         {parentFolder && <p className="selected-folder">Selected Folder: <strong>{parentFolder}</strong></p>}
       </div>

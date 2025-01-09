@@ -11,6 +11,11 @@ struct MediaItem {
 }
 
 #[tauri::command]
+async fn close_window(application_window: tauri::Window) -> Result<(), tauri::Error> {
+    application_window.destroy()
+}
+
+#[tauri::command]
 fn get_media_structure(path: String) -> Vec<MediaItem> {
     let mut items = Vec::new();
     if let Ok(entries) = fs::read_dir(path) {
@@ -31,7 +36,7 @@ fn get_media_structure(path: String) -> Vec<MediaItem> {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_media_structure])
+        .invoke_handler(tauri::generate_handler![get_media_structure, close_window])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
