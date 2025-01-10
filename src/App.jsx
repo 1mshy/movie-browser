@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import './assets/App.css'; // Add this CSS file for styling
-import { Checkbox, IconButton } from '@mui/material';
+import { Checkbox, IconButton, styled, TextField } from '@mui/material';
 import { pink } from '@mui/material/colors';
-import { Circle } from '@mui/icons-material';
+import { CheckBox, Circle } from '@mui/icons-material';
 import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined';
 import MovieIcon from '@mui/icons-material/Movie';
 import { toast } from 'react-toastify';
@@ -44,6 +44,24 @@ function set_parent_folder(folder) {
 function get_parent_folder() {
   return localStorage.getItem("parent_folder");
 }
+
+const PinkTextField = styled(TextField)(
+  {
+    backgroundColor: 'white',
+    borderRadius: '5px',
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: pink[300],
+      },
+      '&:hover fieldset': {
+        borderColor: pink[500],
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: pink[800],
+      },
+    },
+  }
+);
 
 const positive_messages = [
   "Great choice! Enjoy the show!",
@@ -97,34 +115,26 @@ const positive_messages = [
   "You’ve got movie magic in your hands!",
   "Time for a cinematic adventure – let's roll!",
 ];
+
 const App = () => {
-  const [greeting, setGreeting] = React.useState('');
-  const [mediaType, setMediaType] = React.useState('');
-  const [movieList, setMovieList] = React.useState([]);
-  const [parentFolder, setParentFolder] = React.useState(get_parent_folder() || '');
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [filteredMovies, setFilteredMovies] = React.useState([]);
+  const [greeting, setGreeting] = useState('');
+  const [mediaType, setMediaType] = useState('');
+  const [movieList, setMovieList] = useState([]);
+  const [parentFolder, setParentFolder] = useState(get_parent_folder() || '');
+  const [watched, setWatched] = useState(false);
+  const [shows, setShows] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [filteredShows, setFilteredShows] = useState({});
 
-  const imageRef = useRef(null);
-  const showOpenFileDialog = () => {
-    imageRef.current.click();
-    console.log(imageRef.current);
-  };
-
-  React.useEffect(() => {
-    setGreeting('Welcome to Your Magical Movie Browser! ✨');
-  }, []);
-
-  React.useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredMovies(movieList);
-    } else {
-      const filtered = movieList.filter((movie) =>
-        movie.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredMovies(filtered);
+  const loadShows = async () => {
+    if (!parentFolder) {
+      alert('Please select a parent folder first!');
+      return;
     }
-  }, [searchQuery, movieList]);
+    const showsStructure = await invoke('get_shows_structure', { showsPath: `${parentFolder}/Shows` });
+    setShows(showsStructure);
+  };
 
   const handleMediaTypeChange = async (type) => {
     if (!parentFolder) {
@@ -132,12 +142,35 @@ const App = () => {
       return;
     }
     setMediaType(type);
-    const media = await loadMedia(
-      type === 'Movies' ? `${parentFolder}/Movies` : `${parentFolder}/Shows`
-    );
-    setMovieList(media);
-    setFilteredMovies(media);
+    if (type === 'Shows') {
+      await loadShows();
+    } else {
+      const media = await loadMedia(`${parentFolder}/Movies`);
+      setMovieList(media);
+      setFilteredMovies(media);
+    }
   };
+
+  useEffect(() => {
+    setGreeting('Welcome to Your Magical Movie Browser! ✨');
+  }, []);
+
+  useEffect(() => {
+    // Update filteredMovies based on searchQuery
+    if (mediaType === 'Movies') {
+      const filtered = movieList.filter((movie) =>
+        movie.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredMovies(filtered);
+    } else if (mediaType === 'Shows') {
+      const filtered = Object.fromEntries(
+        Object.entries(shows).filter(([showName]) =>
+          showName.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+      setFilteredShows(filtered);
+    }
+  }, [searchQuery, movieList, shows, mediaType]);
 
   return (
     <div className="app-container" data-tauri-drag-region>
@@ -151,7 +184,7 @@ const App = () => {
       </IconButton>
       <h1 className="greeting" data-tauri-drag-region>{greeting}</h1>
       <div className="folder-selector" data-tauri-drag-region>
-        <input
+        <PinkTextField
           value={parentFolder}
           onChange={(event) => {
             const folder = event.target.value;
@@ -159,66 +192,105 @@ const App = () => {
             setParentFolder(folder);
           }}
           placeholder="🌸 Select Parent Folder 🌸"
+          variant="outlined"
         />
-        {parentFolder && (
-          <p className="selected-folder">
-            Selected Folder: <strong>{parentFolder}</strong>
-          </p>
-        )}
+        {parentFolder && <p className="selected-folder">Selected Folder: <strong>{parentFolder}</strong></p>}
       </div>
-      <div className="media-type-buttons">
-        <button className="btn media-btn" onClick={() => handleMediaTypeChange('Movies')}>
-          🍿 Movies
-        </button>
-        <button className="btn media-btn" onClick={() => handleMediaTypeChange('Shows')}>
-          📺 Shows
-        </button>
+      <div className="media-type-buttons" data-tauri-drag-region>
+        <button className="btn media-btn" onClick={() => handleMediaTypeChange('Movies')}>🍿 Movies</button>
+        <button className="btn media-btn" onClick={() => handleMediaTypeChange('Shows')}>📺 Shows</button>
       </div>
-      {mediaType === 'Movies' && (
+      {mediaType && (
         <div className="search-bar">
-          <input
+          <PinkTextField
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Search for a movie..."
+            placeholder="🔍 Search..."
             className="search-input"
           />
         </div>
       )}
-      <div className="media-list">
-        <h2 className="media-type-title">{mediaType}</h2>
-        <ul data-tauri-drag-region>
-          {filteredMovies.map((item) => (
-            <li key={item.path} data-tauri-drag-region className="media-item">
-              <button
-                className="btn media-item-btn"
-                onClick={() => {
-                  openMedia(item.path);
-                  const randomMessage =
-                    positive_messages[Math.floor(Math.random() * positive_messages.length)];
-                  toast.success(randomMessage);
-                }}
-              >
-                🌟 {item.name}
-              </button>
-              <Checkbox
-                checkedIcon={<MovieIcon />}
-                icon={<MovieCreationOutlinedIcon />}
-                defaultChecked={has_watched(item.name)}
-                onClick={() => {
-                  toggle_watched(item.name);
-                }}
-                sx={{
-                  color: pink[800],
-                  '&.Mui-checked': {
-                    color: pink[600],
-                  },
-                }}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      {mediaType === 'Movies' && (
+        <div className="media-list" data-tauri-drag-region>
+          <h2 className="media-type-title">Movies</h2>
+          <ul data-tauri-drag-region>
+            {filteredMovies.map((item) => (
+              <li key={item.path} data-tauri-drag-region className="media-item">
+                <button
+                  className="btn media-item-btn"
+                  onClick={() => {
+                    openMedia(item.path);
+                    const randomMessage = positive_messages[Math.floor(Math.random() * positive_messages.length)];
+                    toast.success(randomMessage);
+                  }}
+                >
+                  🌟 {item.name}
+                </button>
+                <Checkbox
+                  checkedIcon={<MovieIcon />}
+                  icon={<MovieCreationOutlinedIcon />}
+                  defaultChecked={has_watched(item.name)}
+                  onClick={() => {
+                    toggle_watched(item.name);
+                    setWatched(has_watched(item.name));
+                  }}
+                  sx={{
+                    color: pink[800],
+                    '&.Mui-checked': {
+                      color: pink[600],
+                    },
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {mediaType === 'Shows' && (
+        <div className="shows-list" data-tauri-drag-region>
+          <h2 className="media-type-title">Shows</h2>
+          <ul data-tauri-drag-region>
+            {Object.entries(filteredShows).map(([showName, seasons]) => (
+              <li key={showName} className="show-item" data-tauri-drag-region>
+                <h3 data-tauri-drag-region>{showName}</h3>
+                <ul data-tauri-drag-region>
+                  {Object.entries(seasons).map(([seasonName, episodes]) => (
+                    <li key={seasonName} className="season-item">
+                      <h4>{seasonName}</h4>
+                      <ul data-tauri-drag-region>
+                        {episodes.map((episode) => {
+                          const path = `${parentFolder}Shows\\${showName}\\${seasonName}\\${episode}`;
+                          return <li key={episode} className="episode-item" >
+                            <span onClick={() => {
+                              openMedia(path);
+                            }}>🎥 {episode}</span>
+                            <Checkbox
+                              checkedIcon={<MovieIcon />}
+                              icon={<MovieCreationOutlinedIcon />}
+                              defaultChecked={has_watched(path)}
+                              onClick={() => {
+                                toggle_watched(path);
+                                setWatched(has_watched(path));
+                              }}
+                              sx={{
+                                color: pink[800],
+                                '&.Mui-checked': {
+                                  color: pink[600],
+                                },
+                              }}
+                            />
+                          </li>
+                        })}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
