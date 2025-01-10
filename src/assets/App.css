@@ -1,0 +1,160 @@
+body {
+  background-color: #fff5f8;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.app-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.greeting {
+  font-size: 2rem;
+  color: #ff69b4;
+  margin-bottom: 20px;
+}
+
+.folder-selector .btn,
+.media-type-buttons .btn,
+.media-item-btn {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.selected-folder {
+  font-size: 1rem;
+  color: #ff69b4;
+}
+
+.media-type-title {
+  font-size: 1.5rem;
+  color: #ff69b4;
+  margin-top: 20px;
+}
+
+.media-list {
+  padding: 0;
+  list-style: none;
+}
+
+.media-item {
+  margin: 10px 0;
+  list-style-type: none;
+}
+
+/* SHOWS */
+/* Styling for Shows Section */
+.shows-list {
+  margin-top: 20px;
+  text-align: left;
+  padding: 0 20px;
+}
+
+.show-item {
+  margin-bottom: 20px;
+  border: 1px solid #ff69b4;
+  border-radius: 10px;
+  padding: 10px;
+  background: #ffe6f0;
+  transition: all 0.3s ease;
+}
+
+.show-item:hover {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transform: scale(1.02);
+}
+
+.show-item h3 {
+  font-size: 1.5rem;
+  color: #ff69b4;
+  margin: 0 0 10px;
+}
+
+.season-item {
+  margin-left: 20px;
+  padding-left: 10px;
+  border-left: 3px solid #ff69b4;
+}
+
+.season-item h4 {
+  font-size: 1.2rem;
+  color: #ff85a1;
+  margin: 10px 0;
+}
+
+.episode-item {
+  margin-left: 20px;
+  font-size: 1rem;
+  color: #555;
+  list-style: circle;
+}
+
+.episode-item:hover {
+  color: #ff69b4;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Additional Styling for Buttons and Layout Consistency */
+.shows-list ul {
+  padding: 0;
+  list-style: none;
+}
+
+.shows-list li {
+  margin-bottom: 5px;
+}
+
+/* Scrollbar for Show Section */
+.shows-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shows-list::-webkit-scrollbar-thumb {
+  background: #ff69b4;
+  border-radius: 10px;
+}
+
+.shows-list::-webkit-scrollbar-track {
+  background: #ffe6f0;
+}
+
+
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: inherit;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+  border-radius: 20px;
+}

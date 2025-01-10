@@ -2,7 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use serde::Serialize;
-use std::fs::{self, Metadata};
+use std::collections::HashMap;
+use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
 use tauri_plugin_opener::open_path;
@@ -101,13 +102,57 @@ fn open_video(file_path: String) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+fn get_shows_structure(shows_path: String) -> HashMap<String, HashMap<String, Vec<String>>> {
+    let mut shows_map = HashMap::new();
+
+    if let Ok(shows) = fs::read_dir(&shows_path) {
+        for show in shows.flatten() {
+            if show.metadata().map(|m| m.is_dir()).unwrap_or(false) {
+                let show_name = show.file_name().to_string_lossy().into_owned();
+                let mut seasons_map = HashMap::new();
+
+                if let Ok(seasons) = fs::read_dir(show.path()) {
+                    for season in seasons.flatten() {
+                        if season.metadata().map(|m| m.is_dir()).unwrap_or(false) {
+                            let season_name = season.file_name().to_string_lossy().to_string();
+                            let mut video_files = Vec::new();
+
+                            if let Ok(files) = fs::read_dir(season.path()) {
+                                for file in files.flatten() {
+                                    if file.metadata().map(|m| m.is_file()).unwrap_or(false) {
+                                        let name =
+                                            file.file_name().into_string().to_owned().unwrap();
+                                        if name.ends_with("mp4") || name.ends_with("mkv") {
+                                            video_files.push(
+                                                file.file_name().to_string_lossy().into_owned(),
+                                            );
+                                        }
+                                    }
+                                }
+                            }
+
+                            seasons_map.insert(season_name, video_files);
+                        }
+                    }
+                }
+
+                shows_map.insert(show_name, seasons_map);
+            }
+        }
+    }
+
+    shows_map
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_media_structure,
             close_window,
-            open_video
+            open_video,
+            get_shows_structure
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
