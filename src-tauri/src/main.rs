@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use tauri::Manager;
 use tauri_plugin_opener::open_path;
+use tauri_plugin_updater::UpdaterExt;
 
 #[derive(Serialize)]
 struct MediaItem {
@@ -39,7 +39,7 @@ fn get_media_structure(path: String) -> Vec<MediaItem> {
                 } else {
                     match find_largest_file(entry.path().as_path()) {
                         Ok(res) => match res {
-                            Some((largest_file, size)) => {
+                            Some((largest_file, _size)) => {
                                 items.push(MediaItem {
                                     name,
                                     path: largest_file.as_path().to_string_lossy().into_owned(),
@@ -149,7 +149,7 @@ fn get_shows_structure(shows_path: String) -> HashMap<String, HashMap<String, Ve
 #[tauri::command]
 async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
     match app.updater() {
-        Some(updater) => match updater.check().await {
+        Ok(updater) => match updater.check().await {
             Ok(Some(update)) => {
                 let version = update.version.clone();
                 Ok(format!("Update available: {}", version))
@@ -157,7 +157,7 @@ async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
             Ok(None) => Ok("No updates available".to_string()),
             Err(e) => Err(format!("Failed to check for updates: {}", e)),
         },
-        None => Err("Updater not configured".to_string()),
+        Err(e) => Err(format!("Updater error: {}", e)),
     }
 }
 
@@ -168,7 +168,7 @@ fn main() {
         .setup(|app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                if let Some(updater) = handle.updater() {
+                if let Ok(updater) = handle.updater() {
                     match updater.check().await {
                         Ok(Some(update)) => {
                             println!("Update available: {}", update.version);
