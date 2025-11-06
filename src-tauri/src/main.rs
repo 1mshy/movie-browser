@@ -166,21 +166,25 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                if let Ok(updater) = handle.updater() {
-                    match updater.check().await {
-                        Ok(Some(update)) => {
-                            println!("Update available: {}", update.version);
-                            if let Err(e) = update.download_and_install(|_, _| {}, || {}).await {
-                                eprintln!("Failed to download and install update: {}", e);
+            // Only check for updates in release builds
+            #[cfg(not(debug_assertions))]
+            {
+                let handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Ok(updater) = handle.updater() {
+                        match updater.check().await {
+                            Ok(Some(update)) => {
+                                println!("Update available: {}", update.version);
+                                if let Err(e) = update.download_and_install(|_, _| {}, || {}).await {
+                                    eprintln!("Failed to download and install update: {}", e);
+                                }
                             }
+                            Ok(None) => println!("No updates available"),
+                            Err(e) => eprintln!("Failed to check for updates: {}", e),
                         }
-                        Ok(None) => println!("No updates available"),
-                        Err(e) => eprintln!("Failed to check for updates: {}", e),
                     }
-                }
-            });
+                });
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
