@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import './assets/App.css'; // Add this CSS file for styling
 import { Checkbox, IconButton, styled, TextField } from '@mui/material';
-import { pink } from '@mui/material/colors';
+import { pink, orange, red, green, blue, purple } from '@mui/material/colors';
 import { CheckBox, Circle } from '@mui/icons-material';
 import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined';
 import MovieIcon from '@mui/icons-material/Movie';
@@ -45,23 +45,77 @@ function get_parent_folder() {
   return localStorage.getItem("parent_folder");
 }
 
-const PinkTextField = styled(TextField)(
-  {
+// Get current holiday theme based on month
+function getHolidayTheme() {
+  const month = new Date().getMonth() +1 // 1-12
+  console.log(month)
+  if (month === 10) {
+    return {
+      name: 'Halloween',
+      emoji: '🎃',
+      colors: { primary: orange[800], secondary: orange[500], light: orange[300] },
+      particles: ['🎃', '👻', '🦇', '🕷️', '🕸️'],
+      gradient: 'linear-gradient(135deg, #ff9a00, #ff6600, #2d1b00)',
+      background: '#1a1a1a'
+    };
+  } else if (month === 12) {
+    return {
+      name: 'Christmas',
+      emoji: '🎄',
+      colors: { primary: red[700], secondary: green[700], light: red[300] },
+      particles: ['🎄', '⛄', '❄️', '🎅', '🎁', '⭐'],
+      gradient: 'linear-gradient(135deg, #c41e3a, #0f8a5f, #ffffff)',
+      background: '#0d3b2e'
+    };
+  } else if (month === 1) {
+    return {
+      name: 'New Year',
+      emoji: '🎉',
+      colors: { primary: purple[700], secondary: blue[500], light: purple[300] },
+      particles: ['🎉', '🎊', '✨', '🥂', '🎆', '🎇'],
+      gradient: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb)',
+      background: '#1a1a2e'
+    };
+  } else if (month === 4) {
+    return {
+      name: 'Easter',
+      emoji: '🐰',
+      colors: { primary: pink[400], secondary: purple[300], light: pink[200] },
+      particles: ['🐰', '🥚', '🐣', '🌷', '🌸', '🌼'],
+      gradient: 'linear-gradient(135deg, #fbc2eb, #a6c1ee, #ffeaa7)',
+      background: '#fff8e7'
+    };
+  }
+  
+  // Default pink theme
+  return {
+    name: 'Chillin',
+    emoji: '✨',
+    colors: { primary: pink[800], secondary: pink[600], light: pink[300] },
+    particles: ['✨', '⭐', '💫', '🌟'],
+    gradient: 'linear-gradient(135deg, #ff9a9e, #fad0c4)',
+    background: '#fff5f8'
+  };
+}
+
+const ThemedTextField = ({ theme, ...props }) => {
+  const StyledField = styled(TextField)({
     backgroundColor: 'white',
     borderRadius: '5px',
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        borderColor: pink[300],
+        borderColor: theme.colors.light,
       },
       '&:hover fieldset': {
-        borderColor: pink[500],
+        borderColor: theme.colors.secondary,
       },
       '&.Mui-focused fieldset': {
-        borderColor: pink[800],
+        borderColor: theme.colors.primary,
       },
     },
-  }
-);
+  });
+  return <StyledField {...props} />;
+};
 
 const positive_messages = [
   "Great choice! Enjoy the show!",
@@ -126,6 +180,8 @@ const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [filteredShows, setFilteredShows] = useState({});
+  const [theme, setTheme] = useState(getHolidayTheme());
+  const [particles, setParticles] = useState([]);
 
   const loadShows = async () => {
     if (!parentFolder) {
@@ -152,7 +208,34 @@ const App = () => {
   };
 
   useEffect(() => {
-    setGreeting('Welcome to Your Magical Movie Browser! ✨');
+    const currentTheme = getHolidayTheme();
+    setTheme(currentTheme);
+    setGreeting(`Netflix and Chill ${currentTheme.emoji}`);
+    
+    // Set CSS variables for theming
+    document.documentElement.style.setProperty('--theme-primary', currentTheme.colors.primary);
+    document.documentElement.style.setProperty('--theme-secondary', currentTheme.colors.secondary);
+    document.documentElement.style.setProperty('--theme-light', currentTheme.colors.light);
+    document.documentElement.style.setProperty('--theme-gradient', currentTheme.gradient);
+    document.documentElement.style.setProperty('--theme-background', currentTheme.background);
+    
+    // Generate magic particles
+    const generateParticles = () => {
+      const newParticles = [];
+      for (let i = 0; i < 25; i++) {
+        newParticles.push({
+          id: i,
+          emoji: currentTheme.particles[Math.floor(Math.random() * currentTheme.particles.length)],
+          left: Math.random() * 100,
+          animationDuration: 10 + Math.random() * 15,
+          animationDelay: Math.random() * 10,
+          size: 1 + Math.random() * 2
+        });
+      }
+      setParticles(newParticles);
+    };
+    
+    generateParticles();
   }, []);
 
   useEffect(() => {
@@ -174,8 +257,26 @@ const App = () => {
 
   return (
     <div className="app-container" data-tauri-drag-region>
+      {/* Magic Particles */}
+      <div className="particles-container">
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="particle"
+            style={{
+              left: `${particle.left}%`,
+              animationDuration: `${particle.animationDuration}s`,
+              animationDelay: `${particle.animationDelay}s`,
+              fontSize: `${particle.size}rem`
+            }}
+          >
+            {particle.emoji}
+          </div>
+        ))}
+      </div>
+      
       <IconButton
-        style={{ position: 'fixed', top: '-0.3rem', right: '-0.3rem' }}
+        style={{ position: 'fixed', top: '-0.3rem', right: '-0.3rem', zIndex: 1000 }}
         onClick={async () => {
           await invoke('close_window');
         }}
@@ -184,14 +285,15 @@ const App = () => {
       </IconButton>
       <h1 className="greeting" data-tauri-drag-region>{greeting}</h1>
       <div className="folder-selector" data-tauri-drag-region>
-        <PinkTextField
+        <ThemedTextField
+          theme={theme}
           value={parentFolder}
           onChange={(event) => {
             const folder = event.target.value;
             set_parent_folder(folder);
             setParentFolder(folder);
           }}
-          placeholder="🌸 Select Parent Folder 🌸"
+          placeholder={`${theme.emoji} Select Parent Folder ${theme.emoji}`}
           variant="outlined"
         />
         {parentFolder && <p className="selected-folder">Selected Folder: <strong>{parentFolder}</strong></p>}
@@ -202,7 +304,8 @@ const App = () => {
       </div>
       {mediaType && (
         <div className="search-bar">
-          <PinkTextField
+          <ThemedTextField
+            theme={theme}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -236,9 +339,9 @@ const App = () => {
                     setWatched(has_watched(item.name));
                   }}
                   sx={{
-                    color: pink[800],
+                    color: theme.colors.primary,
                     '&.Mui-checked': {
-                      color: pink[600],
+                      color: theme.colors.secondary,
                     },
                   }}
                 />
@@ -274,9 +377,9 @@ const App = () => {
                                 setWatched(has_watched(path));
                               }}
                               sx={{
-                                color: pink[800],
+                                color: theme.colors.primary,
                                 '&.Mui-checked': {
-                                  color: pink[600],
+                                  color: theme.colors.secondary,
                                 },
                               }}
                             />
