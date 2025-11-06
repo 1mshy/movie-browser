@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
+use tauri::Manager;
 use tauri_plugin_opener::open_path;
 
 #[derive(Serialize)]
@@ -145,14 +146,49 @@ fn get_shows_structure(shows_path: String) -> HashMap<String, HashMap<String, Ve
     shows_map
 }
 
+#[tauri::command]
+async fn check_for_updates(app: tauri::AppHandle) -> Result<String, String> {
+    match app.updater() {
+        Some(updater) => match updater.check().await {
+            Ok(Some(update)) => {
+                let version = update.version.clone();
+                Ok(format!("Update available: {}", version))
+            }
+            Ok(None) => Ok("No updates available".to_string()),
+            Err(e) => Err(format!("Failed to check for updates: {}", e)),
+        },
+        None => Err("Updater not configured".to_string()),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .setup(|app| {
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                if let Some(updater) = handle.updater() {
+                    match updater.check().await {
+                        Ok(Some(update)) => {
+                            println!("Update available: {}", update.version);
+                            if let Err(e) = update.download_and_install(|_, _| {}, || {}).await {
+                                eprintln!("Failed to download and install update: {}", e);
+                            }
+                        }
+                        Ok(None) => println!("No updates available"),
+                        Err(e) => eprintln!("Failed to check for updates: {}", e),
+                    }
+                }
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             get_media_structure,
             close_window,
             open_video,
-            get_shows_structure
+            get_shows_structure,
+            check_for_updates
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

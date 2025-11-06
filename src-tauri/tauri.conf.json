@@ -47,6 +47,14 @@
     "dialog": {
       "all": true,
       "open": true
+    },
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/1mshy/movie-browser/releases/latest/download/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIyRkFDRjY0MTc5RkZDQjgKUldTNC9KOFhaTS82SXZvckRDelgrRmg1dUJKbElIQWhjb21hUDlHR0hqY3lQLzBYOXdidkljQjEK"
     }
   }
 }
