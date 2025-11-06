@@ -239,6 +239,43 @@ const positive_messages = [
   "Time for a cinematic adventure – let's roll!",
 ];
 
+// Generate fake data for debug mode
+function generateFakeMovies() {
+  return [
+    { name: 'The Matrix', path: '/fake/movies/matrix.mp4' },
+    { name: 'Inception', path: '/fake/movies/inception.mp4' },
+    { name: 'Interstellar', path: '/fake/movies/interstellar.mp4' },
+    { name: 'The Dark Knight', path: '/fake/movies/dark-knight.mp4' },
+    { name: 'Pulp Fiction', path: '/fake/movies/pulp-fiction.mp4' },
+    { name: 'Fight Club', path: '/fake/movies/fight-club.mp4' },
+    { name: 'Forrest Gump', path: '/fake/movies/forrest-gump.mp4' },
+    { name: 'The Shawshank Redemption', path: '/fake/movies/shawshank.mp4' },
+  ];
+}
+
+function generateFakeShows() {
+  return {
+    'Breaking Bad': {
+      'Season 1': ['S01E01 - Pilot.mp4', 'S01E02 - Cat in the Bag.mp4', 'S01E03 - And the Bag.mp4'],
+      'Season 2': ['S02E01 - Seven Thirty-Seven.mp4', 'S02E02 - Grilled.mp4'],
+      'Season 3': ['S03E01 - No Mas.mp4', 'S03E02 - Caballo Sin Nombre.mp4'],
+    },
+    'Stranger Things': {
+      'Season 1': ['S01E01 - Chapter One.mp4', 'S01E02 - Chapter Two.mp4', 'S01E03 - Chapter Three.mp4'],
+      'Season 2': ['S02E01 - MADMAX.mp4', 'S02E02 - Trick or Treat.mp4'],
+    },
+    'The Office': {
+      'Season 1': ['S01E01 - Pilot.mp4', 'S01E02 - Diversity Day.mp4'],
+      'Season 2': ['S02E01 - The Dundies.mp4', 'S02E02 - Sexual Harassment.mp4'],
+      'Season 3': ['S03E01 - Gay Witch Hunt.mp4', 'S03E02 - The Convention.mp4'],
+    },
+    'Game of Thrones': {
+      'Season 1': ['S01E01 - Winter Is Coming.mp4', 'S01E02 - The Kingsroad.mp4'],
+      'Season 2': ['S02E01 - The North Remembers.mp4', 'S02E02 - The Night Lands.mp4'],
+    },
+  };
+}
+
 const App = () => {
   const [greeting, setGreeting] = useState('');
   const [mediaType, setMediaType] = useState('');
@@ -251,8 +288,16 @@ const App = () => {
   const [filteredShows, setFilteredShows] = useState({});
   const [theme, setTheme] = useState(getHolidayTheme());
   const [particles, setParticles] = useState([]);
+  const [debugMode, setDebugMode] = useState(false);
+  const [selectedShow, setSelectedShow] = useState(null);
+  const [selectedSeason, setSelectedSeason] = useState(null);
 
   const loadShows = async () => {
+    if (debugMode) {
+      const fakeShows = generateFakeShows();
+      setShows(fakeShows);
+      return;
+    }
     if (!parentFolder) {
       alert('Please select a parent folder first!');
       return;
@@ -262,6 +307,19 @@ const App = () => {
   };
 
   const handleMediaTypeChange = async (type) => {
+    if (debugMode) {
+      setMediaType(type);
+      if (type === 'Shows') {
+        const fakeShows = generateFakeShows();
+        setShows(fakeShows);
+        setFilteredShows(fakeShows);
+      } else {
+        const fakeMovies = generateFakeMovies();
+        setMovieList(fakeMovies);
+        setFilteredMovies(fakeMovies);
+      }
+      return;
+    }
     if (!parentFolder) {
       alert('Please select a parent folder first!');
       return;
@@ -359,6 +417,30 @@ const App = () => {
       >
         <Circle fontSize="small" color="error" />
       </IconButton>
+      
+      {/* Debug Mode Toggle */}
+      <button
+        className="debug-toggle"
+        onClick={() => setDebugMode(!debugMode)}
+        style={{
+          position: 'fixed',
+          top: '0.5rem',
+          left: '0.5rem',
+          zIndex: 1000,
+          padding: '8px 12px',
+          borderRadius: '20px',
+          border: 'none',
+          background: debugMode ? theme.colors.primary : 'rgba(128, 128, 128, 0.3)',
+          color: 'white',
+          cursor: 'pointer',
+          fontSize: '0.8rem',
+          fontWeight: 'bold',
+          transition: 'all 0.3s ease',
+        }}
+      >
+        🐛 {debugMode ? 'DEBUG ON' : 'DEBUG OFF'}
+      </button>
+      
       <h1 className="greeting" data-tauri-drag-region>{greeting}</h1>
       <div className="folder-selector" data-tauri-drag-region>
         <ThemedTextField
@@ -429,45 +511,85 @@ const App = () => {
       {mediaType === 'Shows' && (
         <div className="shows-list" data-tauri-drag-region>
           <h2 className="media-type-title">Shows</h2>
-          <ul data-tauri-drag-region>
-            {Object.entries(filteredShows).map(([showName, seasons]) => (
-              <li key={showName} className="show-item" data-tauri-drag-region>
-                <h3 data-tauri-drag-region>{showName}</h3>
-                <ul data-tauri-drag-region>
-                  {Object.entries(seasons).map(([seasonName, episodes]) => (
-                    <li key={seasonName} className="season-item">
-                      <h4>{seasonName}</h4>
-                      <ul data-tauri-drag-region>
-                        {episodes.map((episode) => {
-                          const path = `${parentFolder}Shows\\${showName}\\${seasonName}\\${episode}`;
-                          return <li key={episode} className="episode-item" >
-                            <span onClick={() => {
-                              openMedia(path);
-                            }}>🎥 {episode}</span>
-                            <Checkbox
-                              checkedIcon={<MovieIcon />}
-                              icon={<MovieCreationOutlinedIcon />}
-                              defaultChecked={has_watched(path)}
-                              onClick={() => {
-                                toggle_watched(path);
-                                setWatched(has_watched(path));
-                              }}
-                              sx={{
-                                color: theme.colors.primary,
-                                '&.Mui-checked': {
-                                  color: theme.colors.secondary,
-                                },
-                              }}
-                            />
-                          </li>
-                        })}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-              </li>
+          <div className="show-bubbles">
+            {Object.keys(filteredShows).map((showName) => (
+              <button
+                key={showName}
+                className="show-bubble"
+                onClick={() => setSelectedShow(showName)}
+              >
+                📺 {showName}
+              </button>
             ))}
-          </ul>
+          </div>
+
+          {/* Season Popup */}
+          {selectedShow && (
+            <div className="popup-overlay" onClick={() => setSelectedShow(null)}>
+              <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                <button className="popup-close" onClick={() => setSelectedShow(null)}>✕</button>
+                <h2 className="popup-title">{selectedShow}</h2>
+                <div className="season-bubbles">
+                  {Object.keys(filteredShows[selectedShow] || {}).map((seasonName) => (
+                    <button
+                      key={seasonName}
+                      className="season-bubble"
+                      onClick={() => setSelectedSeason(seasonName)}
+                    >
+                      🎬 {seasonName}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Episode Popup */}
+          {selectedShow && selectedSeason && (
+            <div className="popup-overlay" onClick={() => setSelectedSeason(null)}>
+              <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                <button className="popup-close" onClick={() => setSelectedSeason(null)}>✕</button>
+                <h2 className="popup-title">{selectedShow}</h2>
+                <h3 className="popup-subtitle">{selectedSeason}</h3>
+                <div className="episode-list">
+                  {(filteredShows[selectedShow]?.[selectedSeason] || []).map((episode) => {
+                    const path = debugMode ? `/fake/shows/${selectedShow}/${selectedSeason}/${episode}` : `${parentFolder}Shows\\${selectedShow}\\${selectedSeason}\\${episode}`;
+                    return (
+                      <div key={episode} className="episode-item-bubble">
+                        <button
+                          className="episode-button"
+                          onClick={() => {
+                            if (!debugMode) {
+                              openMedia(path);
+                            }
+                            const randomMessage = positive_messages[Math.floor(Math.random() * positive_messages.length)];
+                            toast.success(randomMessage);
+                          }}
+                        >
+                          🎥 {episode}
+                        </button>
+                        <Checkbox
+                          checkedIcon={<MovieIcon />}
+                          icon={<MovieCreationOutlinedIcon />}
+                          defaultChecked={has_watched(path)}
+                          onClick={() => {
+                            toggle_watched(path);
+                            setWatched(has_watched(path));
+                          }}
+                          sx={{
+                            color: theme.colors.primary,
+                            '&.Mui-checked': {
+                              color: theme.colors.secondary,
+                            },
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
