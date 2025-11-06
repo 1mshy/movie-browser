@@ -45,6 +45,26 @@ function get_parent_folder() {
   return localStorage.getItem("parent_folder");
 }
 
+// Get special greeting for Kyra's birthday
+function getSpecialGreeting() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  
+  if (month === 4 && day === 3) {
+    return "🎂 Happy Birthday Kyra! 🎉 You're the star of today's show! 💖";
+  } else if (month === 4 && day === 2) {
+    return "✨ Tomorrow is a very special day... Kyra's Birthday! 🎈💕";
+  } else if (month === 4 && day === 4) {
+    return "🌟 Hope Kyra had the most amazing birthday yesterday! 🎊💝";
+  } else if (month === 4 && day === 1) {
+    return "🎀 Only 2 days until Kyra's special day! Get ready to celebrate! 🎉";
+  } else if (month === 4 && day === 5) {
+    return "💫 The birthday celebrations continue for our amazing Kyra! 🎂";
+  }
+  return null;
+}
+
 // Get current holiday theme based on month
 function getHolidayTheme() {
   const month = new Date().getMonth() +1 // 1-12
@@ -95,6 +115,19 @@ function getHolidayTheme() {
       background: '#e3f2fd'
     };
   } else if (month === 4) {
+    const day = new Date().getDate();
+    // Special birthday theme for Kyra (April 1-5)
+    if (day >= 1 && day <= 5) {
+      return {
+        name: "Kyra's Birthday",
+        emoji: '🎂',
+        colors: { primary: pink[600], secondary: purple[400], light: pink[300] },
+        particles: ['🎂', '🎉', '🎁', '🎈', '💖', '✨', '🌟', '💝', '🎊'],
+        gradient: 'linear-gradient(135deg, #ff6ec4, #7873f5, #ffd700)',
+        background: '#fff0f8'
+      };
+    }
+    // Default Easter theme for rest of April
     return {
       name: 'Easter',
       emoji: '🐰',
@@ -246,7 +279,14 @@ const App = () => {
   useEffect(() => {
     const currentTheme = getHolidayTheme();
     setTheme(currentTheme);
-    setGreeting(`Netflix and Chill ${currentTheme.emoji}`);
+    
+    // Check for special birthday greeting
+    const specialGreeting = getSpecialGreeting();
+    if (specialGreeting) {
+      setGreeting(specialGreeting);
+    } else {
+      setGreeting(`Netflix and Chill ${currentTheme.emoji}`);
+    }
     
     // Set CSS variables for theming
     document.documentElement.style.setProperty('--theme-primary', currentTheme.colors.primary);

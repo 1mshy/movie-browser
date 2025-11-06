@@ -10,6 +10,7 @@ The app automatically adapts its theme based on the current month:
 - **🎭 February**: Colorful Carnevale theme with masks, circus tents, and confetti (Greek & Italian Carnival)
 - **🇬🇷 March**: Greek Independence Day theme with ancient temples, doves, and Mediterranean blue/white
 - **🐰 April**: Spring Easter theme with bunnies, eggs, and flowers
+  - **🎂 April 1-5**: Special birthday celebration for Kyra with personalized messages and birthday-themed particles!
 - **🇮🇹 June**: Italian Republic Day with the Italian flag colors and cultural symbols
 - **☀️ August**: Ferragosto Italian summer celebration with sun, beaches, and Mediterranean vibes
 - **🎃 October**: Spooky Halloween theme with pumpkins, ghosts, and bats
