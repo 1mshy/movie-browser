@@ -6,10 +6,14 @@ Browse movies stored on your hard drive with simplicity, style, and a touch of m
 
 ### 🎊 Holiday Themes
 The app automatically adapts its theme based on the current month:
+- **🎉 January**: Celebratory New Year theme with fireworks and party poppers
+- **🎭 February**: Colorful Carnevale theme with masks, circus tents, and confetti (Greek & Italian Carnival)
+- **🇬🇷 March**: Greek Independence Day theme with ancient temples, doves, and Mediterranean blue/white
+- **🐰 April**: Spring Easter theme with bunnies, eggs, and flowers
+- **🇮🇹 June**: Italian Republic Day with the Italian flag colors and cultural symbols
+- **☀️ August**: Ferragosto Italian summer celebration with sun, beaches, and Mediterranean vibes
 - **🎃 October**: Spooky Halloween theme with pumpkins, ghosts, and bats
 - **🎄 December**: Festive Christmas theme with snowflakes, Santa, and presents
-- **🎉 January**: Celebratory New Year theme with fireworks and party poppers
-- **🐰 April**: Spring Easter theme with bunnies, eggs, and flowers
 - **💖 Other Months**: Default magical pink theme with sparkles
 
 ### ✨ Magic Particles

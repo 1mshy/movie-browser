@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import './assets/App.css'; // Add this CSS file for styling
 import { Checkbox, IconButton, styled, TextField } from '@mui/material';
-import { pink, orange, red, green, blue, purple } from '@mui/material/colors';
+import { pink, orange, red, green, blue, purple, yellow, lightBlue, deepPurple, amber } from '@mui/material/colors';
 import { CheckBox, Circle } from '@mui/icons-material';
 import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined';
 import MovieIcon from '@mui/icons-material/Movie';
@@ -76,6 +76,24 @@ function getHolidayTheme() {
       gradient: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb)',
       background: '#1a1a2e'
     };
+  } else if (month === 2) {
+    return {
+      name: 'Carnevale',
+      emoji: '🎭',
+      colors: { primary: deepPurple[600], secondary: amber[500], light: purple[300] },
+      particles: ['🎭', '🎪', '🎨', '🎊', '🃏', '👑'],
+      gradient: 'linear-gradient(135deg, #9c27b0, #ffd700, #00c853)',
+      background: '#2d1b3d'
+    };
+  } else if (month === 3) {
+    return {
+      name: 'Greek Independence',
+      emoji: '🇬🇷',
+      colors: { primary: blue[700], secondary: lightBlue[300], light: blue[200] },
+      particles: ['🏛️', '🕊️', '⚡', '🫒', '🌊', '☀️'],
+      gradient: 'linear-gradient(135deg, #0d47a1, #ffffff, #42a5f5)',
+      background: '#e3f2fd'
+    };
   } else if (month === 4) {
     return {
       name: 'Easter',
@@ -84,6 +102,24 @@ function getHolidayTheme() {
       particles: ['🐰', '🥚', '🐣', '🌷', '🌸', '🌼'],
       gradient: 'linear-gradient(135deg, #fbc2eb, #a6c1ee, #ffeaa7)',
       background: '#fff8e7'
+    };
+  } else if (month === 6) {
+    return {
+      name: 'Italian Republic Day',
+      emoji: '🇮🇹',
+      colors: { primary: green[700], secondary: red[600], light: green[300] },
+      particles: ['🇮🇹', '🍕', '🍝', '⭐', '🏛️', '🌿'],
+      gradient: 'linear-gradient(135deg, #2e7d32, #ffffff, #c62828)',
+      background: '#f1f8e9'
+    };
+  } else if (month === 8) {
+    return {
+      name: 'Ferragosto',
+      emoji: '☀️',
+      colors: { primary: amber[700], secondary: lightBlue[500], light: yellow[300] },
+      particles: ['☀️', '🏖️', '🍉', '🍋', '🌊', '🍇'],
+      gradient: 'linear-gradient(135deg, #ffa726, #42a5f5, #ffee58)',
+      background: '#fff9e6'
     };
   }
   
