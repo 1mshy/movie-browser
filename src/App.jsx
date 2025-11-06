@@ -8,6 +8,8 @@ import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined
 import MovieIcon from '@mui/icons-material/Movie';
 import { toast } from 'react-toastify';
 
+const SHOW_DEBUG_MODE = false
+
 async function loadMedia(folderPath) {
   const media = await invoke('get_media_structure', { path: folderPath });
   return media.sort((a, b) => a.name.localeCompare(b.name));
@@ -421,7 +423,7 @@ const App = () => {
       >
         <Circle fontSize="small" color="error" />
       </IconButton>
-      
+      {SHOW_DEBUG_MODE && <>
       {/* Debug Mode Toggle */}
       <button
         className="debug-toggle"
@@ -443,7 +445,7 @@ const App = () => {
         }}
       >
         🐛 {debugMode ? 'DEBUG ON' : 'DEBUG OFF'}
-      </button>
+      </button></>}
       
       <h1 className="greeting" data-tauri-drag-region>{greeting}</h1>
       <div className="folder-selector" data-tauri-drag-region>
@@ -478,7 +480,25 @@ const App = () => {
       )}
       {mediaType === 'Movies' && (
         <div className="media-list" data-tauri-drag-region>
-          <h2 className="media-type-title">Movies</h2>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+            <h2 className="media-type-title">Movies</h2>
+            <button
+              className="surprise-btn"
+              onClick={() => {
+                if (filteredMovies.length === 0) {
+                  toast.error("No movies available!");
+                  return;
+                }
+                const randomMovie = filteredMovies[Math.floor(Math.random() * filteredMovies.length)];
+                if (!debugMode) {
+                  openMedia(randomMovie.path);
+                }
+                toast.success(`🎲 Surprise! Let's watch "${randomMovie.name}"!`);
+              }}
+            >
+              🎲 Surprise Me!
+            </button>
+          </div>
           <ul data-tauri-drag-region>
             {filteredMovies.map((item) => (
               <li key={item.path} data-tauri-drag-region className="media-item">
