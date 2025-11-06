@@ -168,22 +168,26 @@ function getHolidayTheme() {
 }
 
 const ThemedTextField = ({ theme, ...props }) => {
-  const StyledField = styled(TextField)({
-    backgroundColor: 'white',
-    borderRadius: '5px',
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: theme.colors.light,
-      },
-      '&:hover fieldset': {
-        borderColor: theme.colors.secondary,
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: theme.colors.primary,
-      },
-    },
-  });
-  return <StyledField {...props} />;
+  return (
+    <TextField
+      {...props}
+      sx={{
+        backgroundColor: 'white',
+        borderRadius: '5px',
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            borderColor: theme.colors.light,
+          },
+          '&:hover fieldset': {
+            borderColor: theme.colors.secondary,
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: theme.colors.primary,
+          },
+        },
+      }}
+    />
+  );
 };
 
 const positive_messages = [
